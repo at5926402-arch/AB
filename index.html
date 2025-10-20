@@ -2,522 +2,446 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-<title>Mini Piano — Mobile Friendly</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Angry Stick: Zombies</title>
 <style>
-  :root{
-    --bg:#0f1720;
-    --panel:#0b1220;
-    --white-key:#f7f7f7;
-    --black-key:#1a1f24;
-    --accent:#ff4d4d;
-    --muted:#94a3b8;
-  }
-  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-  .app{
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:flex-start;
-    padding:18px;
-    box-sizing:border-box;
-    gap:14px;
-    color:#e6eef8;
-  }
-
-  .topbar{
-    width:100%;
-    max-width:900px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-  }
-  .title{
-    font-weight:700;
-    font-size:18px;
-    letter-spacing:0.2px;
-  }
-  .controls{
-    display:flex;
-    gap:8px;
-    align-items:center;
-  }
-  .btn{
-    border:0;padding:8px 10px;border-radius:8px;background:linear-gradient(180deg,#14202b,#0f1720);color:#e6eef8;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.6);
-    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
-  }
-  .small{
-    font-size:12px;color:var(--muted);
-  }
-
-  .panel{
-    width:100%;
-    max-width:900px;
-    background:linear-gradient(180deg,#07111a,#071018);
-    border-radius:12px;
-    padding:12px;
-    box-sizing:border-box;
-    box-shadow: 0 10px 40px rgba(2,6,23,0.7);
-  }
-
-  .controls-row{
-    display:flex;
-    gap:12px;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:12px;
-  }
-
-  .left-controls{ display:flex; gap:10px; align-items:center; }
-  .octave-display{ font-weight:800; font-size:16px; padding:6px 10px; border-radius:8px; background:#071827; color:#cfe8ff; }
-  .toggle{
-    display:inline-flex; align-items:center; gap:8px;
-    background:#071827; padding:6px 10px; border-radius:8px;
-  }
-  input[type=range]{ accent-color: var(--accent); }
-
-  /* keyboard layout */
-  .keyboard {
-    position:relative;
-    height: calc(240px);
-    display:grid;
-    user-select:none;
-    touch-action: none; /* important for mobile multi-touch */
-    --white-count:14; /* number of white keys shown */
-  }
-
-  /* white keys */
-  .white-keys{
-    display:flex;
-    height:100%;
-  }
-  .key.white{
-    flex:1;
-    border:1px solid rgba(0,0,0,0.18);
-    background: linear-gradient(180deg,#ffffff,#e9eef6);
-    border-radius:6px;
-    margin:4px 2px;
-    position:relative;
-    box-shadow: 0 6px 14px rgba(2,6,23,0.45);
-    display:flex;align-items:flex-end;justify-content:center;
-    padding-bottom:10px;
-    box-sizing:border-box;
-    cursor:pointer;
-    touch-action: none;
-  }
-  .key.white.active{ background: linear-gradient(180deg,#ffdca0,#ffe6c2); transform: translateY(2px); }
-
-  .white .label{ font-weight:700; color:#08101a; font-size:12px; background: rgba(255,255,255,0.0); padding:2px 6px; border-radius:6px; }
-
-  /* black keys */
-  .black-keys{
-    pointer-events:none; /* we forward pointer events to black keys individually */
-    position:absolute;
-    left:0; right:0; top:0; bottom:0;
-  }
-  .key.black{
-    width: calc((100% / var(--white-count)) * 0.58);
-    height: 62%;
-    position:absolute;
-    background: linear-gradient(180deg,#0b0e11,#050608);
-    border-radius:6px;
-    box-shadow:0 8px 18px rgba(0,0,0,0.6);
-    border:1px solid rgba(255,255,255,0.03);
-    display:flex;align-items:flex-end;justify-content:center;
-    padding-bottom:10px;
-    box-sizing:border-box;
-    cursor:pointer;
-    pointer-events:auto;
-    touch-action:none;
-  }
-  .key.black.active{ background: linear-gradient(180deg,#2b2b2b,#111); transform: translateY(3px); }
-
-  .black .label{ font-weight:700; font-size:11px; color:#fff; }
-
-  .meta{
-    margin-top:10px;color:var(--muted);font-size:13px;text-align:center;
-  }
-
-  /* responsive */
-  @media (max-width:520px){
-    .keyboard{ height:220px; }
-    .title{ font-size:16px; }
-    .btn{ padding:8px; font-size:13px; }
-  }
+  html,body { height:100%; margin:0; background:#0b0b0f; font-family:Segoe UI,Roboto,sans-serif; color:#eee; }
+  #gameWrap { display:flex; height:100vh; align-items:center; justify-content:center; }
+  canvas { background: linear-gradient(#111, #0b0b0f); border:4px solid #222; border-radius:8px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); }
+  #hud { position: absolute; top:12px; left:12px; color:#fff; font-weight:600; }
+  #hud .small { font-size:13px; opacity:.85; }
+  #overlay { position: absolute; text-align:center; color:#fff; pointer-events:none; }
+  button { padding:.6rem 1rem; margin-top:10px; border-radius:6px; border:none; cursor:pointer; background:#ff3b3b; color:#fff; font-weight:700;}
+  .muted { opacity:.6 }
 </style>
 </head>
 <body>
-  <div class="app">
-    <div class="topbar" style="width:100%;max-width:900px">
-      <div>
-        <div class="title">Mini Piano — Mobile Browser</div>
-        <div class="small">Touch to play • Multi-touch supported • Try landscape for more keys</div>
-      </div>
-      <div class="controls">
-        <div class="small">Octave</div>
-        <div class="octave-display" id="octaveDisplay">4</div>
-      </div>
-    </div>
-
-    <div class="panel" id="panel">
-      <div class="controls-row">
-        <div class="left-controls">
-          <button class="btn" id="octDown">Oct -</button>
-          <button class="btn" id="octUp">Oct +</button>
-
-          <label class="toggle" title="Sustain toggle">
-            <input id="sustain" type="checkbox" style="width:18px;height:18px;">
-            <span class="small">Sustain</span>
-          </label>
-        </div>
-
-        <div style="display:flex;gap:10px;align-items:center;">
-          <div class="small">Volume</div>
-          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.7">
-        </div>
-      </div>
-
-      <div class="keyboard" id="keyboard" aria-hidden="false" role="application">
-        <div class="white-keys" id="whiteKeys"></div>
-        <div class="black-keys" id="blackKeys"></div>
-      </div>
-
-      <div class="meta">Mobile-friendly mini piano. Keys: C - E (2 octaves). Use keyboard (A..L) on desktop.</div>
-    </div>
+<div id="gameWrap">
+  <canvas id="c" width="960" height="600"></canvas>
+  <div id="hud">
+    <div id="score">Score: 0</div>
+    <div class="small" id="wave">Wave: 1</div>
+    <div class="small" id="health">Health: 100</div>
+    <div class="small" id="info">Click to shoot • WASD to move • P pause • M mute</div>
   </div>
+  <div id="overlay" style="width:960px;height:600px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <!-- overlay content injected by JS -->
+  </div>
+</div>
 
 <script>
-/*
-  Mini Piano — plain single file.
-  Features:
-   - Responsive keyboard (2 octaves by default)
-   - Pointer & touch multi-touch support (pointer events)
-   - Keyboard support (desktop)
-   - Octave up/down, sustain toggle, volume
-   - WebAudio oscillator with ADSR envelope (polyphonic)
-*/
-
 (() => {
-  // --- CONFIG ---
-  const WHITE_SEQUENCE = ['C','D','E','F','G','A','B']; // base white sequence
-  const KEY_MAP = [ // desktop keyboard mapping (approx)
-    {key:'a', note:'C'}, {key:'w', note:'C#5'}, {key:'s', note:'D'}, {key:'e', note:'D#5'},
-    {key:'d', note:'E'}, {key:'f', note:'F'}, {key:'t', note:'F#4'}, {key:'g', note:'G'},
-    {key:'y', note:'G#4'}, {key:'h', note:'A'}, {key:'u', note:'A#4'}, {key:'j', note:'B'},
-    {key:'k', note:'C#4'}
-  ];
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const overlay = document.getElementById('overlay');
+  const scoreEl = document.getElementById('score');
+  const waveEl = document.getElementById('wave');
+  const healthEl = document.getElementById('health');
 
-  // frequencies
-  function freqFromNote(note, octave){
-    // note like 'C', 'C#', 'D' etc. octave integer
-    const NOTES = { 'C':0,'C#4':1,'D':2,'D#5':3,'E':4,'F':5,'F#4':6,'G':7,'G#4':8,'A':9,'A#5':10,'B':11 };
-    const n = NOTES[note];
-    // A4 = 440 at MIDI note 69; compute semitone distance
-    const semitoneIndex = (octave+1)*12 + n; // C0 is MIDI 12 -> formula aligns
-    const semitoneFromA4 = semitoneIndex - 69;
-    return 440 * Math.pow(2, semitoneFromA4/12);
+  const W = canvas.width, H = canvas.height;
+  let last = 0;
+  let keys = {};
+  let mouse = {x: W/2, y: H/2, down:false};
+  let bullets = [];
+  let zombies = [];
+  let particles = [];
+  let score = 0;
+  let wave = 1;
+  let player;
+  let paused = false;
+  let muted = false;
+  let gameOver = false;
+
+  function rand(a,b){return a + Math.random()*(b-a);}
+  function dist(a,b){return Math.hypot(a.x-b.x, a.y-b.y);}
+
+  // simple audio helper (beeps)
+  function beep(freq, duration=0.08, vol=0.2){
+    if(muted) return;
+    try {
+      const ctxAudio = (window._audioCtx ||= new (window.AudioContext||window.webkitAudioContext)());
+      const o = ctxAudio.createOscillator();
+      const g = ctxAudio.createGain();
+      o.type = 'square';
+      o.frequency.value = freq;
+      g.gain.value = vol;
+      o.connect(g); g.connect(ctxAudio.destination);
+      o.start();
+      setTimeout(()=>{ o.stop(); }, duration*1000);
+    } catch(e){}
   }
 
-  // UI elements
-  const whiteKeysContainer = document.getElementById('whiteKeys');
-  const blackKeysContainer = document.getElementById('blackKeys');
-  const octaveDisplay = document.getElementById('octaveDisplay');
-  const octUp = document.getElementById('octUp');
-  const octDown = document.getElementById('octDown');
-  const sustainToggle = document.getElementById('sustain');
-  const volumeControl = document.getElementById('volume');
+  // Player
+  function createPlayer(){
+    player = {
+      x: W/2, y: H/2,
+      r: 12,
+      speed: 250,
+      health: 100,
+      cooldown: 0
+    };
+  }
 
-  // audio
-  const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  const audioCtx = new AudioCtx();
-  let masterGain = audioCtx.createGain();
-  masterGain.gain.value = parseFloat(volumeControl.value);
-  masterGain.connect(audioCtx.destination);
+  // Bullet
+  function fireBullet(targetX, targetY){
+    if(player.cooldown > 0) return;
+    const angle = Math.atan2(targetY - player.y, targetX - player.x);
+    const speed = 700;
+    bullets.push({
+      x: player.x + Math.cos(angle)*(player.r+8),
+      y: player.y + Math.sin(angle)*(player.r+8),
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      r: 4,
+      life: 1.2
+    });
+    player.cooldown = 0.18;
+    beep(1200,0.06,0.12);
+  }
 
-  // state
-  let baseOctave = 4; // visible middle octave
-  let whiteCount = 14; // two full octaves (7*2)
-  let activeVoices = new Map(); // key: pointerId or keyboardKey -> voice object
-  let keyElements = []; // keep refs for active styling
-  octaveDisplay.innerText = baseOctave;
+  // Zombie
+  function spawnZombie(){
+    // spawn at random edge
+    const side = Math.floor(Math.random()*4);
+    let x,y;
+    if(side===0){ x = rand(-60,-20); y = rand(-20,H+20); }
+    else if(side===1){ x = rand(W+20,W+60); y = rand(-20,H+20); }
+    else if(side===2){ x = rand(-20,W+20); y = rand(-60,-20); }
+    else { x = rand(-20,W+20); y = rand(H+20,H+60); }
+    const spd = rand(35 + wave*8, 70 + wave*10);
+    const hp = Math.floor(10 + wave*6 + Math.random()*10);
+    zombies.push({x,y,vx:0,vy:0,r:18,hp,maxHp:hp,spd});
+  }
 
-  // adjust white count CSS variable for black key width calc
-  const keyboard = document.getElementById('keyboard');
-  keyboard.style.setProperty('--white-count', whiteCount);
+  // Particles
+  function spawnParticles(x,y,color,count=12){
+    for(let i=0;i<count;i++){
+      const a = rand(0,Math.PI*2);
+      const s = rand(60,260);
+      particles.push({
+        x,y,vx:Math.cos(a)*s, vy:Math.sin(a)*s, life: rand(0.4,0.9),
+        r: rand(1.5,4), col: color
+      });
+    }
+  }
 
-  // helpers: create UI keys (two octaves)
-  function buildKeys(){
-    whiteKeysContainer.innerHTML = '';
-    blackKeysContainer.innerHTML = '';
-    keyElements = [];
+  // Game init / wave control
+  function startWave(n){
+    for(let i=0;i<n;i++){
+      setTimeout(spawnZombie, i*350);
+    }
+  }
 
-    // build white notes covering two octaves
-    const totalWhite = whiteCount;
-    // we will start from C of baseOctave (i.e., C4)
-    const startOct = baseOctave;
-    // figure how many full cycles needed: totalWhite / 7
-    const cycles = Math.ceil(totalWhite / 7);
-    const whites = [];
-    for(let c=0;c<cycles;c++){
-      for(const n of WHITE_SEQUENCE){
-        whites.push({note:n, octave: startOct + c});
-        if(whites.length >= totalWhite) break;
+  function nextWave(){
+    wave++;
+    waveEl.innerText = 'Wave: ' + wave;
+    startWave(4 + wave*3);
+  }
+
+  function resetGame(){
+    score = 0;
+    wave = 1;
+    zombies.length = 0;
+    bullets.length = 0;
+    particles.length = 0;
+    createPlayer();
+    scoreEl.innerText = 'Score: 0';
+    waveEl.innerText = 'Wave: 1';
+    healthEl.innerText = 'Health: ' + player.health;
+    gameOver = false;
+    overlay.innerHTML = '';
+    startWave(6);
+  }
+
+  // Input
+  window.addEventListener('keydown', e => {
+    keys[e.key.toLowerCase()] = true;
+    if(e.key.toLowerCase() === 'p'){ paused = !paused; showPause(); }
+    if(e.key.toLowerCase() === 'm'){ muted = !muted; document.body.classList.toggle('muted', muted); }
+    if(e.key === ' '){ // space to shoot toward mouse
+      fireBullet(mouse.x, mouse.y);
+    }
+  });
+  window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+  canvas.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+  canvas.addEventListener('mousedown', e => { mouse.down = true; fireBullet(mouse.x, mouse.y); });
+  window.addEventListener('mouseup', e => { mouse.down = false; });
+
+  // Pause display
+  function showPause(){
+    overlay.innerHTML = paused ? `<div style="background:rgba(0,0,0,0.6);padding:20px;border-radius:8px;"><h1>PAUSED</h1><div class="small">Press P to resume</div></div>` : '';
+  }
+
+  // Main loop
+  function update(dt){
+    if(paused || gameOver) return;
+    // player movement
+    let dx = 0, dy = 0;
+    if(keys['w'] || keys['arrowup']) dy -= 1;
+    if(keys['s'] || keys['arrowdown']) dy += 1;
+    if(keys['a'] || keys['arrowleft']) dx -= 1;
+    if(keys['d'] || keys['arrowright']) dx += 1;
+    if(dx || dy){
+      const len = Math.hypot(dx,dy);
+      dx/=len; dy/=len;
+      player.x += dx * player.speed * dt;
+      player.y += dy * player.speed * dt;
+      // clamp
+      player.x = Math.max(20, Math.min(W-20, player.x));
+      player.y = Math.max(20, Math.min(H-20, player.y));
+    }
+
+    // cooldown
+    if(player.cooldown>0) player.cooldown = Math.max(0, player.cooldown - dt);
+
+    // auto-fire if mouse held
+    if(mouse.down) fireBullet(mouse.x, mouse.y);
+
+    // bullets update
+    for(let i=bullets.length-1;i>=0;i--){
+      const b = bullets[i];
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      b.life -= dt;
+      if(b.life <= 0 || b.x < -20 || b.x > W+20 || b.y < -20 || b.y > H+20){
+        bullets.splice(i,1);
       }
     }
 
-    // create white key elements
-    whites.forEach((w, idx) => {
-      const el = document.createElement('div');
-      el.className = 'key white';
-      el.dataset.note = w.note;
-      el.dataset.octave = w.octave;
-      el.dataset.index = idx;
-      el.innerHTML = `<div class="label">${w.note}${w.octave}</div>`;
-      whiteKeysContainer.appendChild(el);
-      keyElements.push({el, note:w.note, octave:w.octave, idx, isBlack:false});
-    });
+    // zombies update
+    for(let i=zombies.length-1;i>=0;i--){
+      const z = zombies[i];
+      // move toward player
+      const ang = Math.atan2(player.y - z.y, player.x - z.x);
+      z.vx = Math.cos(ang)*z.spd;
+      z.vy = Math.sin(ang)*z.spd;
+      z.x += z.vx * dt;
+      z.y += z.vy * dt;
 
-    // create black keys: place them above appropriate white keys
-    // mapping: black keys sit between certain white keys: after C (C#), after D (D#), after F (F#), after G (G#), after A (A#)
-    const blackOffsets = ['C','D','F','G','A']; // white notes after which black exist
-    keyElements.forEach((k, i) => {
-      if(blackOffsets.includes(k.note)){
-        // compute position: find white key bounding and place absolutely at center between whites
-        const bp = document.createElement('div');
-        bp.className = 'key black';
-        bp.dataset.note = k.note + '#';
-        bp.dataset.octave = k.octave;
-        bp.dataset.index = i;
-        bp.innerHTML = `<div class="label">${k.note}#${k.octave}</div>`;
-        // position calculation will be done after layout with percentages
-        blackKeysContainer.appendChild(bp);
+      // collision with bullets
+      for(let j=bullets.length-1;j>=0;j--){
+        const b = bullets[j];
+        const d = Math.hypot(b.x - z.x, b.y - z.y);
+        if(d < z.r + b.r){
+          // hit
+          z.hp -= 10 + Math.floor(Math.random()*8);
+          // particles
+          spawnParticles(b.x, b.y, '#ffcc00', 8);
+          bullets.splice(j,1);
+          beep(900,0.04,0.08);
+          if(z.hp <= 0){
+            spawnParticles(z.x, z.y, '#8be04b', 18 + Math.floor(Math.random()*8));
+            zombies.splice(i,1);
+            score += 10;
+            scoreEl.innerText = 'Score: ' + score;
+            // small chance to drop health
+            if(Math.random() < 0.08){
+              player.health = Math.min(100, player.health + 8);
+              beep(1600,0.06,0.08);
+            }
+            break;
+          }
+        }
       }
-    });
 
-    // position black keys absolutely using percentages
-    // compute each white key width percentage
-    const whiteEls = Array.from(whiteKeysContainer.children);
-    const whitePct = 100 / whiteEls.length;
-    // black keys elements align: place centered over gap between white i and white i+1
-    const blacks = Array.from(blackKeysContainer.children);
-    blacks.forEach(b => {
-      const idx = parseInt(b.dataset.index,10);
-      // place roughly at idx + 0.68 (visual tweak)
-      const leftPct = (idx + 0.7) * whitePct;
-      b.style.left = `calc(${leftPct}% - ${whitePct * 0.29}%)`;
-    });
-  }
+      // collision with player
+      const d2 = Math.hypot(player.x - z.x, player.y - z.y);
+      if(d2 < z.r + player.r + 2){
+        // bite
+        player.health -= Math.floor(8 + Math.random()*12) * dt * 4;
+        // push zombie slightly back
+        const push = 6;
+        z.x -= Math.cos(ang)*push;
+        z.y -= Math.sin(ang)*push;
+        // damage particles
+        spawnParticles(player.x + Math.cos(ang)*10, player.y + Math.sin(ang)*10, '#ff4d4d', 4);
+        if(player.health <= 0){
+          player.health = 0;
+          die();
+        }
+        healthEl.innerText = 'Health: ' + Math.max(0, Math.floor(player.health));
+      }
+    }
 
-  // voice creation & management
-  function createVoice(note, octave, id){
-    // resume audio context on first user interaction if suspended (mobile policy)
-    if(audioCtx.state === 'suspended') audioCtx.resume();
+    // particles
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.vx *= 0.98;
+      p.vy *= 0.98;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.life -= dt;
+      if(p.life <= 0) particles.splice(i,1);
+    }
 
-    const frequency = freqFromNote(note.replace('#',''), octave + (note.includes('+') ? 1 : 0));
-    // oscillator + gain for envelope
-    const osc = audioCtx.createOscillator();
-    // use a slightly richer waveform: mix of triangle + subtle square by detune via two oscs
-    osc.type = 'sine';
-    osc.frequency.value = frequency;
+    // if all zombies dead, next wave after small delay
+    if(zombies.length === 0 && !gameOver){
+      setTimeout(nextWave, 800);
+    }
 
-    // second oscillator a little detuned for body
-    const osc2 = audioCtx.createOscillator();
-    osc2.type = 'triangle';
-    osc2.frequency.value = frequency * 1.997; // slight detune
-    osc2.detune.value = 4;
-
-    const gain = audioCtx.createGain();
-    gain.gain.value = 0;
-
-    // simple filter to smooth tone (lowpass)
-    const filter = audioCtx.createBiquadFilter();
-    filter.type = 'lowpass';
-    filter.frequency.value = 7400;
-
-    osc.connect(gain);
-    osc2.connect(gain);
-    gain.connect(filter);
-    filter.connect(masterGain);
-
-    // start
-    osc.start();
-    osc2.start();
-
-    // ADSR
-    const now = audioCtx.currentTime;
-    const attack = 0.005;
-    const decay = 0.18;
-    const sustainLevel = 0.6;
-    const release = sustainToggle.checked ? 1.2 : 0.5; // longer if sustain on
-
-    gain.gain.cancelScheduledValues(now);
-    gain.gain.setValueAtTime(0.0001, now);
-    gain.gain.exponentialRampToValueAtTime(1.0, now + attack);
-    gain.gain.exponentialRampToValueAtTime(sustainLevel, now + attack + decay);
-
-    const voice = {osc, osc2, gain, filter, release, id, note, octave, startTime: now, stopped:false};
-    activeVoices.set(id, voice);
-    return voice;
-  }
-
-  function stopVoice(id){
-    const v = activeVoices.get(id);
-    if(!v) return;
-    if(v.stopped) return;
-    v.stopped = true;
-    const now = audioCtx.currentTime;
-    v.gain.gain.cancelScheduledValues(now);
-    v.gain.gain.setValueAtTime(v.gain.gain.value, now);
-    v.gain.gain.exponentialRampToValueAtTime(0.0001, now + v.release);
-    // stop oscillators after release
-    setTimeout(()=>{
-      try{ v.osc.stop(); v.osc2.stop(); }catch(e){}
-    }, (v.release+0.05)*1000);
-    activeVoices.delete(id);
-  }
-
-  // input handling: pointer events for multi-touch & mouse
-  const pointerToKey = new Map(); // pointerId -> element data id string
-
-  function findKeyFromElement(el){
-    if(!el) return null;
-    if(el.classList.contains('key')) return el;
-    // if tapped inside label, ascend
-    return el.closest('.key');
-  }
-
-  function handlePointerDown(evt){
-    // only left button / primary
-    if(evt.pointerType === 'mouse' && evt.button !== 0) return;
-    const el = findKeyFromElement(evt.target);
-    if(!el) return;
-    const id = (evt.pointerId != null) ? ('p' + evt.pointerId) : ('k'+evt.timeStamp);
-    const note = el.dataset.note.replace('+',''); // 'C', 'C#'
-    const octave = parseInt(el.dataset.octave,10);
-    // play voice
-    createVoice(note, octave, id);
-    // add active state
-    el.classList.add('active');
-    pointerToKey.set(evt.pointerId, el);
-    // prevent default to allow multi-touch properly
-    evt.preventDefault();
-  }
-
-  function handlePointerUp(evt){
-    const el = pointerToKey.get(evt.pointerId) || findKeyFromElement(evt.target);
-    if(el){
-      const id = 'p' + evt.pointerId;
-      stopVoice(id);
-      el.classList.remove('active');
-      pointerToKey.delete(evt.pointerId);
+    // spawn rate increases slightly with wave if none left
+    if(zombies.length < Math.min(2, wave) && Math.random() < 0.01 + wave*0.003){
+      spawnZombie();
     }
   }
 
-  // also handle pointercancel & leave
-  function handlePointerCancel(evt){
-    handlePointerUp(evt);
+  // draw stickman
+  function drawPlayer(){
+    // body
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = '#eaeaea';
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y - 6);
+    ctx.lineTo(player.x, player.y + 18);
+    ctx.stroke();
+    // head
+    ctx.beginPath();
+    ctx.fillStyle = '#eaeaea';
+    ctx.arc(player.x, player.y - 18, 10, 0, Math.PI*2);
+    ctx.fill();
+    // arms aiming toward mouse
+    const ang = Math.atan2(mouse.y - player.y, mouse.x - player.x);
+    ctx.strokeStyle = '#ff4d4d';
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(player.x, player.y - 4);
+    ctx.lineTo(player.x + Math.cos(ang)*28, player.y + Math.sin(ang)*28);
+    ctx.stroke();
+
+    // gun barrel
+    ctx.fillStyle = '#222';
+    ctx.fillRect(player.x + Math.cos(ang)*28 - 6, player.y + Math.sin(ang)*28 - 4, 14, 8);
   }
 
-  // support mouse click for desktop where pointerId may be 1.. etc
-  function bindPointerEvents(){
-    keyboard.addEventListener('pointerdown', handlePointerDown, {passive:false});
-    window.addEventListener('pointerup', handlePointerUp, {passive:false});
-    keyboard.addEventListener('pointercancel', handlePointerCancel);
-    keyboard.addEventListener('pointerleave', handlePointerCancel);
-  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    // ground grid
+    ctx.save();
+    ctx.globalAlpha = 0.03;
+    ctx.strokeStyle = '#fff';
+    for(let gx=0;gx<W;gx+=40){
+      ctx.beginPath(); ctx.moveTo(gx,0); ctx.lineTo(gx,H); ctx.stroke();
+    }
+    for(let gy=0;gy<H;gy+=40){
+      ctx.beginPath(); ctx.moveTo(0,gy); ctx.lineTo(W,gy); ctx.stroke();
+    }
+    ctx.restore();
 
-  // keyboard (desktop)
-  const keyNameToId = new Map();
-  function handleKeyDown(e){
-    const k = e.key.toLowerCase();
-    // find mapping
-    const mapping = KEY_MAP.find(x=>x.key===k);
-    if(!mapping) return;
-    e.preventDefault();
-    // map mapping.note to actual displayed key element (first match)
-    // If mapping.note has '+' treat as next octave
-    const note = mapping.note.replace('+','');
-    // pick a visible key with same note
-    const el = Array.from(document.querySelectorAll('.key')).find(x=>x.dataset.note.replace('#','') === note);
-    if(!el) return;
-    if(keyNameToId.has(k)) return; // already pressed
-    const id = 'kb_' + k;
-    createVoice(mapping.note, baseOctave, id);
-    el.classList.add('active');
-    keyNameToId.set(k, el);
-  }
-  function handleKeyUp(e){
-    const k = e.key.toLowerCase();
-    const el = keyNameToId.get(k);
-    if(el){
-      el.classList.remove('active');
-      stopVoice('kb_' + k);
-      keyNameToId.delete(k);
+    // draw zombies
+    for(const z of zombies){
+      // body
+      const healthPct = z.hp / z.maxHp;
+      ctx.save();
+      ctx.translate(z.x,z.y);
+      ctx.rotate(Math.atan2(player.y - z.y, player.x - z.x) + Math.PI/2);
+      // shadow
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.ellipse(0+2, z.r+8, z.r+8, 6, 0,0,Math.PI*2);
+      ctx.fill();
+      // zombie body (green)
+      ctx.fillStyle = '#4b8d3b';
+      ctx.beginPath();
+      ctx.ellipse(0,0, z.r, z.r*1.2, 0,0,Math.PI*2);
+      ctx.fill();
+      // eyes
+      ctx.fillStyle = '#fff';
+      ctx.beginPath(); ctx.arc(-6,-6,3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(6,-6,3,0,Math.PI*2); ctx.fill();
+      // pupil
+      ctx.fillStyle='#222'; ctx.beginPath(); ctx.arc(-6,-6,1.3,0,Math.PI*2); ctx.fill();
+      ctx.beginPath(); ctx.arc(6,-6,1.3,0,Math.PI*2); ctx.fill();
+      // mouth
+      ctx.strokeStyle='#222'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(-6,4); ctx.lineTo(6,4); ctx.stroke();
+      // hp bar
+      ctx.fillStyle = '#222';
+      ctx.fillRect(-z.r, -z.r-12, z.r*2, 6);
+      ctx.fillStyle = '#ff4d4d';
+      ctx.fillRect(-z.r+1, -z.r-11, (z.r*2-2)*(1-healthPct), 4);
+      ctx.fillStyle = '#7fff7f';
+      ctx.fillRect(-z.r+1 + (z.r*2-2)*(1-healthPct), -z.r-11, (z.r*2-2)*healthPct, 4);
+      ctx.restore();
+    }
+
+    // draw bullets
+    for(const b of bullets){
+      ctx.beginPath();
+      ctx.fillStyle = '#ffd800';
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // particles
+    for(const p of particles){
+      ctx.beginPath();
+      ctx.fillStyle = p.col;
+      ctx.globalAlpha = Math.max(0, p.life / 1.1);
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+
+    // draw player on top
+    drawPlayer();
+
+    // HUD text handled separately
+    if(paused){
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(0,0,W,H);
+      ctx.fillStyle = '#fff'; ctx.font = '36px system-ui'; ctx.textAlign='center';
+      ctx.fillText('PAUSED', W/2, H/2 - 10);
     }
   }
 
-  // volume & ui control
-  volumeControl.addEventListener('input', ()=>{ masterGain.gain.value = parseFloat(volumeControl.value); });
-
-  // octave controls
-  octDown.addEventListener('click', ()=>{
-    baseOctave = Math.max(1, baseOctave - 1);
-    octaveDisplay.innerText = baseOctave;
-    buildKeys();
-  });
-  octUp.addEventListener('click', ()=>{
-    baseOctave = Math.min(6, baseOctave + 1);
-    octaveDisplay.innerText = baseOctave;
-    buildKeys();
-  });
-
-  // stop all voices - useful when toggling sustain
-  function stopAllVoices(){
-    for(const id of Array.from(activeVoices.keys())){
-      stopVoice(id);
-    }
-    // clear active classes
-    document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active'));
-    pointerToKey.clear();
+  function die(){
+    gameOver = true;
+    beep(200,0.2,0.4);
+    overlay.innerHTML = `
+      <div style="background:rgba(0,0,0,0.7);padding:26px;border-radius:10px;">
+        <h1 style="margin:0 0 6px 0;font-size:34px;">GAME OVER</h1>
+        <div style="margin-bottom:12px;color:#ccc">Score: <strong>${score}</strong> • Wave: ${wave}</div>
+        <div><button id="restart">Restart</button></div>
+      </div>`;
+    document.getElementById('restart').addEventListener('click', ()=>{ resetGame(); });
   }
 
-  sustainToggle.addEventListener('change', ()=> {
-    // existing voices release will use new sustain on next stop
-  });
-
-  // initialize
-  buildKeys();
-  bindPointerEvents();
-  window.addEventListener('keydown', handleKeyDown);
-  window.addEventListener('keyup', handleKeyUp);
-
-  // safety: stop voices when page hidden
-  document.addEventListener('visibilitychange', ()=>{
-    if(document.hidden) stopAllVoices();
-  });
-
-  // ensure pointer events don't cause scrolling
-  keyboard.addEventListener('touchstart', e=> e.preventDefault(), {passive:false});
-
-  // nice: resume AudioContext on first touch/click if blocked
-  function resumeAudioOnFirstGesture(){
-    function resume(){
-      if(audioCtx.state === 'suspended') audioCtx.resume();
-      window.removeEventListener('touchstart', resume);
-      window.removeEventListener('click', resume);
-    }
-    window.addEventListener('touchstart', resume, {passive:true});
-    window.addEventListener('click', resume);
+  // main animation frame
+  function loop(t){
+    const now = t/1000;
+    const dt = Math.min(0.05, now - (last || now));
+    last = now;
+    update(dt);
+    draw();
+    requestAnimationFrame(loop);
   }
-  resumeAudioOnFirstGesture();
 
-  // initial hint (brief toast) removed after a second
-  setTimeout(()=>{}, 800);
+  // start
+  createPlayer();
+  resetGame();
+  // initial spawn
+  startWave(6);
+  requestAnimationFrame(loop);
 
-  // expose a small debug to global
-  window._miniPiano = {audioCtx, activeVoices};
+  // small help: make canvas responsive (scale to window while keeping ratio)
+  function fitCanvas(){
+    const wrap = document.getElementById('gameWrap');
+    const wRatio = window.innerWidth / W;
+    const hRatio = window.innerHeight / H;
+    const scale = Math.min(wRatio*0.95, hRatio*0.95, 1);
+    canvas.style.transform = `scale(${scale})`;
+    canvas.style.transformOrigin = 'center';
+    overlay.style.transform = canvas.style.transform;
+    overlay.style.width = canvas.width + 'px';
+    overlay.style.height = canvas.height + 'px';
+  }
+  window.addEventListener('resize', fitCanvas);
+  fitCanvas();
 
 })();
 </script>
