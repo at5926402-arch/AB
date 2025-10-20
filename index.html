@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>Mini Piano — Mobile Friendly</title>
+<style>
+  :root{
+    --bg:#0f1720;
+    --panel:#0b1220;
+    --white-key:#f7f7f7;
+    --black-key:#1a1f24;
+    --accent:#ff4d4d;
+    --muted:#94a3b8;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);font-family:Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
+  .app{
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding:18px;
+    box-sizing:border-box;
+    gap:14px;
+    color:#e6eef8;
+  }
+
+  .topbar{
+    width:100%;
+    max-width:900px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .title{
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:0.2px;
+  }
+  .controls{
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .btn{
+    border:0;padding:8px 10px;border-radius:8px;background:linear-gradient(180deg,#14202b,#0f1720);color:#e6eef8;font-weight:700;box-shadow:0 4px 10px rgba(0,0,0,.6);
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+  }
+  .small{
+    font-size:12px;color:var(--muted);
+  }
+
+  .panel{
+    width:100%;
+    max-width:900px;
+    background:linear-gradient(180deg,#07111a,#071018);
+    border-radius:12px;
+    padding:12px;
+    box-sizing:border-box;
+    box-shadow: 0 10px 40px rgba(2,6,23,0.7);
+  }
+
+  .controls-row{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:12px;
+  }
+
+  .left-controls{ display:flex; gap:10px; align-items:center; }
+  .octave-display{ font-weight:800; font-size:16px; padding:6px 10px; border-radius:8px; background:#071827; color:#cfe8ff; }
+  .toggle{
+    display:inline-flex; align-items:center; gap:8px;
+    background:#071827; padding:6px 10px; border-radius:8px;
+  }
+  input[type=range]{ accent-color: var(--accent); }
+
+  /* keyboard layout */
+  .keyboard {
+    position:relative;
+    height: calc(240px);
+    display:grid;
+    user-select:none;
+    touch-action: none; /* important for mobile multi-touch */
+    --white-count:14; /* number of white keys shown */
+  }
+
+  /* white keys */
+  .white-keys{
+    display:flex;
+    height:100%;
+  }
+  .key.white{
+    flex:1;
+    border:1px solid rgba(0,0,0,0.18);
+    background: linear-gradient(180deg,#ffffff,#e9eef6);
+    border-radius:6px;
+    margin:4px 2px;
+    position:relative;
+    box-shadow: 0 6px 14px rgba(2,6,23,0.45);
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:10px;
+    box-sizing:border-box;
+    cursor:pointer;
+    touch-action: none;
+  }
+  .key.white.active{ background: linear-gradient(180deg,#ffdca0,#ffe6c2); transform: translateY(2px); }
+
+  .white .label{ font-weight:700; color:#08101a; font-size:12px; background: rgba(255,255,255,0.0); padding:2px 6px; border-radius:6px; }
+
+  /* black keys */
+  .black-keys{
+    pointer-events:none; /* we forward pointer events to black keys individually */
+    position:absolute;
+    left:0; right:0; top:0; bottom:0;
+  }
+  .key.black{
+    width: calc((100% / var(--white-count)) * 0.58);
+    height: 62%;
+    position:absolute;
+    background: linear-gradient(180deg,#0b0e11,#050608);
+    border-radius:6px;
+    box-shadow:0 8px 18px rgba(0,0,0,0.6);
+    border:1px solid rgba(255,255,255,0.03);
+    display:flex;align-items:flex-end;justify-content:center;
+    padding-bottom:10px;
+    box-sizing:border-box;
+    cursor:pointer;
+    pointer-events:auto;
+    touch-action:none;
+  }
+  .key.black.active{ background: linear-gradient(180deg,#2b2b2b,#111); transform: translateY(3px); }
+
+  .black .label{ font-weight:700; font-size:11px; color:#fff; }
+
+  .meta{
+    margin-top:10px;color:var(--muted);font-size:13px;text-align:center;
+  }
+
+  /* responsive */
+  @media (max-width:520px){
+    .keyboard{ height:220px; }
+    .title{ font-size:16px; }
+    .btn{ padding:8px; font-size:13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar" style="width:100%;max-width:900px">
+      <div>
+        <div class="title">Mini Piano — Mobile Browser</div>
+        <div class="small">Touch to play • Multi-touch supported • Try landscape for more keys</div>
+      </div>
+      <div class="controls">
+        <div class="small">Octave</div>
+        <div class="octave-display" id="octaveDisplay">4</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel">
+      <div class="controls-row">
+        <div class="left-controls">
+          <button class="btn" id="octDown">Oct -</button>
+          <button class="btn" id="octUp">Oct +</button>
+
+          <label class="toggle" title="Sustain toggle">
+            <input id="sustain" type="checkbox" style="width:18px;height:18px;">
+            <span class="small">Sustain</span>
+          </label>
+        </div>
+
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="small">Volume</div>
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.7">
+        </div>
+      </div>
+
+      <div class="keyboard" id="keyboard" aria-hidden="false" role="application">
+        <div class="white-keys" id="whiteKeys"></div>
+        <div class="black-keys" id="blackKeys"></div>
+      </div>
+
+      <div class="meta">Mobile-friendly mini piano. Keys: C - E (2 octaves). Use keyboard (A..L) on desktop.</div>
+    </div>
+  </div>
+
+<script>
+/*
+  Mini Piano — plain single file.
+  Features:
+   - Responsive keyboard (2 octaves by default)
+   - Pointer & touch multi-touch support (pointer events)
+   - Keyboard support (desktop)
+   - Octave up/down, sustain toggle, volume
+   - WebAudio oscillator with ADSR envelope (polyphonic)
+*/
+
+(() => {
+  // --- CONFIG ---
+  const WHITE_SEQUENCE = ['C','D','E','F','G','A','B']; // base white sequence
+  const KEY_MAP = [ // desktop keyboard mapping (approx)
+    {key:'a', note:'C'}, {key:'w', note:'C#5'}, {key:'s', note:'D'}, {key:'e', note:'D#5'},
+    {key:'d', note:'E'}, {key:'f', note:'F'}, {key:'t', note:'F#4'}, {key:'g', note:'G'},
+    {key:'y', note:'G#4'}, {key:'h', note:'A'}, {key:'u', note:'A#4'}, {key:'j', note:'B'},
+    {key:'k', note:'C#4'}
+  ];
+
+  // frequencies
+  function freqFromNote(note, octave){
+    // note like 'C', 'C#', 'D' etc. octave integer
+    const NOTES = { 'C':0,'C#4':1,'D':2,'D#5':3,'E':4,'F':5,'F#4':6,'G':7,'G#4':8,'A':9,'A#5':10,'B':11 };
+    const n = NOTES[note];
+    // A4 = 440 at MIDI note 69; compute semitone distance
+    const semitoneIndex = (octave+1)*12 + n; // C0 is MIDI 12 -> formula aligns
+    const semitoneFromA4 = semitoneIndex - 69;
+    return 440 * Math.pow(2, semitoneFromA4/12);
+  }
+
+  // UI elements
+  const whiteKeysContainer = document.getElementById('whiteKeys');
+  const blackKeysContainer = document.getElementById('blackKeys');
+  const octaveDisplay = document.getElementById('octaveDisplay');
+  const octUp = document.getElementById('octUp');
+  const octDown = document.getElementById('octDown');
+  const sustainToggle = document.getElementById('sustain');
+  const volumeControl = document.getElementById('volume');
+
+  // audio
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const audioCtx = new AudioCtx();
+  let masterGain = audioCtx.createGain();
+  masterGain.gain.value = parseFloat(volumeControl.value);
+  masterGain.connect(audioCtx.destination);
+
+  // state
+  let baseOctave = 4; // visible middle octave
+  let whiteCount = 14; // two full octaves (7*2)
+  let activeVoices = new Map(); // key: pointerId or keyboardKey -> voice object
+  let keyElements = []; // keep refs for active styling
+  octaveDisplay.innerText = baseOctave;
+
+  // adjust white count CSS variable for black key width calc
+  const keyboard = document.getElementById('keyboard');
+  keyboard.style.setProperty('--white-count', whiteCount);
+
+  // helpers: create UI keys (two octaves)
+  function buildKeys(){
+    whiteKeysContainer.innerHTML = '';
+    blackKeysContainer.innerHTML = '';
+    keyElements = [];
+
+    // build white notes covering two octaves
+    const totalWhite = whiteCount;
+    // we will start from C of baseOctave (i.e., C4)
+    const startOct = baseOctave;
+    // figure how many full cycles needed: totalWhite / 7
+    const cycles = Math.ceil(totalWhite / 7);
+    const whites = [];
+    for(let c=0;c<cycles;c++){
+      for(const n of WHITE_SEQUENCE){
+        whites.push({note:n, octave: startOct + c});
+        if(whites.length >= totalWhite) break;
+      }
+    }
+
+    // create white key elements
+    whites.forEach((w, idx) => {
+      const el = document.createElement('div');
+      el.className = 'key white';
+      el.dataset.note = w.note;
+      el.dataset.octave = w.octave;
+      el.dataset.index = idx;
+      el.innerHTML = `<div class="label">${w.note}${w.octave}</div>`;
+      whiteKeysContainer.appendChild(el);
+      keyElements.push({el, note:w.note, octave:w.octave, idx, isBlack:false});
+    });
+
+    // create black keys: place them above appropriate white keys
+    // mapping: black keys sit between certain white keys: after C (C#), after D (D#), after F (F#), after G (G#), after A (A#)
+    const blackOffsets = ['C','D','F','G','A']; // white notes after which black exist
+    keyElements.forEach((k, i) => {
+      if(blackOffsets.includes(k.note)){
+        // compute position: find white key bounding and place absolutely at center between whites
+        const bp = document.createElement('div');
+        bp.className = 'key black';
+        bp.dataset.note = k.note + '#';
+        bp.dataset.octave = k.octave;
+        bp.dataset.index = i;
+        bp.innerHTML = `<div class="label">${k.note}#${k.octave}</div>`;
+        // position calculation will be done after layout with percentages
+        blackKeysContainer.appendChild(bp);
+      }
+    });
+
+    // position black keys absolutely using percentages
+    // compute each white key width percentage
+    const whiteEls = Array.from(whiteKeysContainer.children);
+    const whitePct = 100 / whiteEls.length;
+    // black keys elements align: place centered over gap between white i and white i+1
+    const blacks = Array.from(blackKeysContainer.children);
+    blacks.forEach(b => {
+      const idx = parseInt(b.dataset.index,10);
+      // place roughly at idx + 0.68 (visual tweak)
+      const leftPct = (idx + 0.7) * whitePct;
+      b.style.left = `calc(${leftPct}% - ${whitePct * 0.29}%)`;
+    });
+  }
+
+  // voice creation & management
+  function createVoice(note, octave, id){
+    // resume audio context on first user interaction if suspended (mobile policy)
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+
+    const frequency = freqFromNote(note.replace('#',''), octave + (note.includes('+') ? 1 : 0));
+    // oscillator + gain for envelope
+    const osc = audioCtx.createOscillator();
+    // use a slightly richer waveform: mix of triangle + subtle square by detune via two oscs
+    osc.type = 'sine';
+    osc.frequency.value = frequency;
+
+    // second oscillator a little detuned for body
+    const osc2 = audioCtx.createOscillator();
+    osc2.type = 'triangle';
+    osc2.frequency.value = frequency * 1.997; // slight detune
+    osc2.detune.value = 4;
+
+    const gain = audioCtx.createGain();
+    gain.gain.value = 0;
+
+    // simple filter to smooth tone (lowpass)
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 7400;
+
+    osc.connect(gain);
+    osc2.connect(gain);
+    gain.connect(filter);
+    filter.connect(masterGain);
+
+    // start
+    osc.start();
+    osc2.start();
+
+    // ADSR
+    const now = audioCtx.currentTime;
+    const attack = 0.005;
+    const decay = 0.18;
+    const sustainLevel = 0.6;
+    const release = sustainToggle.checked ? 1.2 : 0.5; // longer if sustain on
+
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(0.0001, now);
+    gain.gain.exponentialRampToValueAtTime(1.0, now + attack);
+    gain.gain.exponentialRampToValueAtTime(sustainLevel, now + attack + decay);
+
+    const voice = {osc, osc2, gain, filter, release, id, note, octave, startTime: now, stopped:false};
+    activeVoices.set(id, voice);
+    return voice;
+  }
+
+  function stopVoice(id){
+    const v = activeVoices.get(id);
+    if(!v) return;
+    if(v.stopped) return;
+    v.stopped = true;
+    const now = audioCtx.currentTime;
+    v.gain.gain.cancelScheduledValues(now);
+    v.gain.gain.setValueAtTime(v.gain.gain.value, now);
+    v.gain.gain.exponentialRampToValueAtTime(0.0001, now + v.release);
+    // stop oscillators after release
+    setTimeout(()=>{
+      try{ v.osc.stop(); v.osc2.stop(); }catch(e){}
+    }, (v.release+0.05)*1000);
+    activeVoices.delete(id);
+  }
+
+  // input handling: pointer events for multi-touch & mouse
+  const pointerToKey = new Map(); // pointerId -> element data id string
+
+  function findKeyFromElement(el){
+    if(!el) return null;
+    if(el.classList.contains('key')) return el;
+    // if tapped inside label, ascend
+    return el.closest('.key');
+  }
+
+  function handlePointerDown(evt){
+    // only left button / primary
+    if(evt.pointerType === 'mouse' && evt.button !== 0) return;
+    const el = findKeyFromElement(evt.target);
+    if(!el) return;
+    const id = (evt.pointerId != null) ? ('p' + evt.pointerId) : ('k'+evt.timeStamp);
+    const note = el.dataset.note.replace('+',''); // 'C', 'C#'
+    const octave = parseInt(el.dataset.octave,10);
+    // play voice
+    createVoice(note, octave, id);
+    // add active state
+    el.classList.add('active');
+    pointerToKey.set(evt.pointerId, el);
+    // prevent default to allow multi-touch properly
+    evt.preventDefault();
+  }
+
+  function handlePointerUp(evt){
+    const el = pointerToKey.get(evt.pointerId) || findKeyFromElement(evt.target);
+    if(el){
+      const id = 'p' + evt.pointerId;
+      stopVoice(id);
+      el.classList.remove('active');
+      pointerToKey.delete(evt.pointerId);
+    }
+  }
+
+  // also handle pointercancel & leave
+  function handlePointerCancel(evt){
+    handlePointerUp(evt);
+  }
+
+  // support mouse click for desktop where pointerId may be 1.. etc
+  function bindPointerEvents(){
+    keyboard.addEventListener('pointerdown', handlePointerDown, {passive:false});
+    window.addEventListener('pointerup', handlePointerUp, {passive:false});
+    keyboard.addEventListener('pointercancel', handlePointerCancel);
+    keyboard.addEventListener('pointerleave', handlePointerCancel);
+  }
+
+  // keyboard (desktop)
+  const keyNameToId = new Map();
+  function handleKeyDown(e){
+    const k = e.key.toLowerCase();
+    // find mapping
+    const mapping = KEY_MAP.find(x=>x.key===k);
+    if(!mapping) return;
+    e.preventDefault();
+    // map mapping.note to actual displayed key element (first match)
+    // If mapping.note has '+' treat as next octave
+    const note = mapping.note.replace('+','');
+    // pick a visible key with same note
+    const el = Array.from(document.querySelectorAll('.key')).find(x=>x.dataset.note.replace('#','') === note);
+    if(!el) return;
+    if(keyNameToId.has(k)) return; // already pressed
+    const id = 'kb_' + k;
+    createVoice(mapping.note, baseOctave, id);
+    el.classList.add('active');
+    keyNameToId.set(k, el);
+  }
+  function handleKeyUp(e){
+    const k = e.key.toLowerCase();
+    const el = keyNameToId.get(k);
+    if(el){
+      el.classList.remove('active');
+      stopVoice('kb_' + k);
+      keyNameToId.delete(k);
+    }
+  }
+
+  // volume & ui control
+  volumeControl.addEventListener('input', ()=>{ masterGain.gain.value = parseFloat(volumeControl.value); });
+
+  // octave controls
+  octDown.addEventListener('click', ()=>{
+    baseOctave = Math.max(1, baseOctave - 1);
+    octaveDisplay.innerText = baseOctave;
+    buildKeys();
+  });
+  octUp.addEventListener('click', ()=>{
+    baseOctave = Math.min(6, baseOctave + 1);
+    octaveDisplay.innerText = baseOctave;
+    buildKeys();
+  });
+
+  // stop all voices - useful when toggling sustain
+  function stopAllVoices(){
+    for(const id of Array.from(activeVoices.keys())){
+      stopVoice(id);
+    }
+    // clear active classes
+    document.querySelectorAll('.key.active').forEach(k=>k.classList.remove('active'));
+    pointerToKey.clear();
+  }
+
+  sustainToggle.addEventListener('change', ()=> {
+    // existing voices release will use new sustain on next stop
+  });
+
+  // initialize
+  buildKeys();
+  bindPointerEvents();
+  window.addEventListener('keydown', handleKeyDown);
+  window.addEventListener('keyup', handleKeyUp);
+
+  // safety: stop voices when page hidden
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden) stopAllVoices();
+  });
+
+  // ensure pointer events don't cause scrolling
+  keyboard.addEventListener('touchstart', e=> e.preventDefault(), {passive:false});
+
+  // nice: resume AudioContext on first touch/click if blocked
+  function resumeAudioOnFirstGesture(){
+    function resume(){
+      if(audioCtx.state === 'suspended') audioCtx.resume();
+      window.removeEventListener('touchstart', resume);
+      window.removeEventListener('click', resume);
+    }
+    window.addEventListener('touchstart', resume, {passive:true});
+    window.addEventListener('click', resume);
+  }
+  resumeAudioOnFirstGesture();
+
+  // initial hint (brief toast) removed after a second
+  setTimeout(()=>{}, 800);
+
+  // expose a small debug to global
+  window._miniPiano = {audioCtx, activeVoices};
+
+})();
+</script>
+</body>
+</html>
